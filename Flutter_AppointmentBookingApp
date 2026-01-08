@@ -1,0 +1,159 @@
+import 'package:flutter/material.dart';
+
+
+void main() {
+  runApp(const Appointments());
+}
+class Appointments extends StatelessWidget {
+  const Appointments({super.key});
+
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: AppointmentApp(),
+    );
+  }
+}
+
+
+class AppointmentApp extends StatefulWidget {
+  const AppointmentApp({super.key});
+
+
+  @override
+  State<AppointmentApp> createState() => _AppointmentAppState();
+}
+
+
+class _AppointmentAppState extends State<AppointmentApp> {
+  final TextEditingController nameController = TextEditingController();
+
+
+  String selectedDate = "Not Selected";
+  String selectedTime = "Not Selected";
+
+
+  Future<void> pickDate() async {
+    DateTime? date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+
+
+    if (date != null) {
+      setState(() {
+        selectedDate =
+            "${date.day}/${date.month}/${date.year}";
+      });
+    }
+  }
+
+
+  Future<void> pickTime() async {
+    TimeOfDay? time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+
+    if (time != null) {
+      setState(() {
+        selectedTime =
+            "${time.hour}:${time.minute.toString().padLeft(2, '0')}";
+      });
+    }
+  }
+
+
+  void bookAppointment() {
+    String name = nameController.text;
+
+
+    if (name.isEmpty ||
+        selectedDate == "Not Selected" ||
+        selectedTime == "Not Selected") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please fill all the details"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Appointment booked for $name on $selectedDate at $selectedTime",
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
+  }
+
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Appointment Booking")),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: "Enter Name",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+
+            Text("Date: $selectedDate"),
+            ElevatedButton(
+              onPressed: pickDate,
+              child: const Text("Select Date"),
+            ),
+
+
+            const SizedBox(height: 20),
+
+
+            Text("Time: $selectedTime"),
+            ElevatedButton(
+              onPressed: pickTime,
+              child: const Text("Select Time"),
+            ),
+
+
+            const SizedBox(height: 30),
+
+
+            Center(
+              child: ElevatedButton(
+                onPressed: bookAppointment,
+                child: const Text("Book Appointment"),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
